@@ -14,12 +14,13 @@ import (
 // SnapshotInput represents the input to the Lambda function
 type SnapshotInput struct {
     DBInstanceIdentifier string `json:"dbInstanceIdentifier"`
+    AwsRegion string `json:"region"`
 }
 
 // Handler handles Lambda invocations
 func Handler(ctx context.Context, input SnapshotInput) (string, error) {
     sess, err := session.NewSession(&aws.Config{
-        Region: aws.String("us-east-2"), // Change to your desired region
+        Region: aws.String(input.AwsRegion),
     })
     if err != nil {
         return "", fmt.Errorf("failed to create session: %v", err)
@@ -33,7 +34,6 @@ func Handler(ctx context.Context, input SnapshotInput) (string, error) {
         DBInstanceIdentifier: aws.String(input.DBInstanceIdentifier),
         DBSnapshotIdentifier: aws.String(snapshotIdentifier),
     }
-
     _, err = svc.CreateDBSnapshotWithContext(ctx, inputParam)
     if err != nil {
         return "", fmt.Errorf("failed to create snapshot: %v", err)
